@@ -14,14 +14,14 @@ class Node:
         self.y0 = y0
         self.width = w
         self.height = h
-        #self.type_id = type_id
+        self.type_id = 0
         self.children = []
 
     def show_data(self):
         print(f"x0 = {self.x0}, y0 = {self.y0}, width = {self.width}, height = {self.height}")
 
     def get_data(self):
-        return self.x0, self.y0, self.width, self.height
+        return self.x0, self.y0, self.width, self.height, self.type_id
 
     def get_width(self):
         return self.width
@@ -37,11 +37,12 @@ class Node:
                     black += 1
                 else:
                     white += 1
-        return black
+        return white
 
 
 def recursive_subdivide(node, size_threshold, img):
-    if node.count_black_white(img) <= 1000:
+    if node.count_black_white(img) <= 1:
+        node.type_id = 1
         return
 
     if node.get_width() <= size_threshold or node.get_height() <= size_threshold:
