@@ -90,13 +90,7 @@ def bowyer_watson(points, width, height):
     for triangle in to_be_removed:
         triangulation.remove(triangle)
 
-    return triangulation
-
-def laplacian_smoothing(points, iterations):
-    pass
-
-def find_neighbours(points, point):
-    pass
+    return transform_triangles(points,triangulation)
 
 def transform_triangles(points, triangles):
     new_tri = []
@@ -108,15 +102,23 @@ def transform_triangles(points, triangles):
 
 def plot(points, delaunay):
     for tri in delaunay:
-        plt.plot([tri.a[0], tri.b[0], tri.c[0]], [tri.a[1], tri.b[1], tri.c[1]], '-k')
+        plt.plot([points[tri[0]][0], 
+                  points[tri[1]][0], 
+                  points[tri[2]][0]
+                  ],
+                 [points[tri[0]][1], 
+                  points[tri[1]][1], 
+                  points[tri[2]][1]
+                  ],
+                 '-k')
 
-    plt.scatter([x[0] for x in points], [x[1] for x in points], s=0.8, c='r')
-    
-
+    plt.scatter([x[0] for x in points], 
+                [x[1] for x in points], 
+                s=0.8, c='r')
     plt.show()
 
 def save_mesh(points, triangles):
-    triangles = transform_triangles(points, triangles)
+    # triangles = transform_triangles(points, triangles)
     with open('mesh.txt', 'w') as f:
         f.write("Nodes\n")
         for i, point in enumerate(points):
@@ -125,18 +127,20 @@ def save_mesh(points, triangles):
         for j, element in enumerate(triangles):
             f.write(f"{j} {element[0]} {element[1]} {element[2]}\n")
 
-def read_image(file_path):
+def read_points(file_path, gap=50, step=False):
     image = Image.open(file_path)
-    image = image.convert("RGB")
+    # image = image.convert("RGB")
     width, height = image.size
-    gap = 50
+    
     points = []
     for y in range(height):
         for x in range(width):
             r, g, b = image.getpixel((x, y))
-            if r == 0 and g == 0 and b == 0:  # Assuming black pixels represent the points
-                points.append((x, y))
+            if r == 0 and g == 0 and b == 0:
+                if (x % 2 == 0 and y % 2 == 0):  
+                    points.append((x, y))
 
+    # dodanie punktów
     for y in range(0, height, gap):
         for x in range(0, width, gap):
             r, g, b = image.getpixel((x, y))
@@ -146,17 +150,50 @@ def read_image(file_path):
 
     return width, height, points
 
+def testing_library_delaunay(points):
+    from scipy.spatial import Delaunay
+    tri = Delaunay(points)
+    plt.triplot([x[0] for x in points], [x[1] for x in points], tri.simplices)
+    plt.plot([x[0] for x in points], [x[1] for x in points], '.r')
+    plt.show()
+
+def laplacian_smoothing(points, iterations):
+    new_points = points.copy()
+    for j in range(iterations):
+        smoothed_points = []
+        for i, p in enumerate(new_points):
+            neighbors = find_neighbours(points, p)
+            if len(neighbors) == 0:
+                smoothed_points.append(p)
+                continue
+            avg_pos = calc_average_position(neighbors)
+            new_position = (int((p[0]+avg_pos[0])/2), int((p[1]+avg_pos[1]/2)))
+            smoothed_points.append(new_position)
+        new_points = smoothed_points
+    return new_points
+
+def find_neighbours(points, point, radius=20):
+    neighbours = []
+    for i in range(len(points)):
+        if distance(points[i], point) < radius:
+            neighbours.append(points[i])
+    return neighbours
+
+def calc_average_position(points):
+    avg = [0,0]
+    for p in points:
+        avg[0] += p[0]
+        avg[1] += p[1]
+    length = len(points)
+    return (avg[0]/length, avg[1]/length)
+
 # Wczytaj obrazek
 image_path = "test_2.png"  # Ścieżka do obrazka PNG lub JPG
-width, height, points = read_image(image_path)
+width, height, points = read_points(image_path, gap=20)
 
 amount = len(points)
 
 delaunay = bowyer_watson(points, width, height)
+points = laplacian_smoothing(points, 2)
 plot(points, delaunay)
 save_mesh(points, delaunay)
-# from scipy.spatial import Delaunay
-# tri = Delaunay(points)
-# plt.triplot([x[0] for x in points], [x[1] for x in points], tri.simplices)
-# plt.plot([x[0] for x in points], [x[1] for x in points], '.r')
-# plt.show()
