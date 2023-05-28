@@ -16,17 +16,22 @@ Description and pseudocode of algorithms:
 
 An example output of QuadTree algorithm (mesh size parameter is set to 5 for the first image and 25 for the second):<br>
 Before meshing
+
 ![](resources/bg.jpg)
 
 After meshing
+
 ![](resources/quadtree.png)
 
 
 An example output of Bowyer-Watson method. The algorithm generates additional points to improve mesh structure.
 
 Before meshing
+
 ![](unstructured_mesh/test_1.png)
+
 After meshing
+
 ![](resources/bowyer_watson.png)
 
 ## TODO
