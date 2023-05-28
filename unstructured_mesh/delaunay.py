@@ -188,12 +188,12 @@ def calc_average_position(points):
     return (avg[0]/length, avg[1]/length)
 
 # Wczytaj obrazek
-image_path = "test_2.png"  # Ścieżka do obrazka PNG lub JPG
+image_path = "test_1.png"  # Ścieżka do obrazka PNG lub JPG
 width, height, points = read_points(image_path, gap=20)
 
 amount = len(points)
 
 delaunay = bowyer_watson(points, width, height)
-points = laplacian_smoothing(points, 2)
+# points = laplacian_smoothing(points, 1)
 plot(points, delaunay)
 save_mesh(points, delaunay)
