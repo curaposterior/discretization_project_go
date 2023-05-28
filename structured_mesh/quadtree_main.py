@@ -18,11 +18,12 @@ class QTree:
         children = self.return_children()
         with open('elements.txt', 'w') as f:
             for count, child in enumerate(children):
-                x0, y0, width, height = child.get_data()
+                x0, y0, width, height, type_id = child.get_data()
                 f.write(f"Element {count} node_1 = {x0},{y0};"
                         f"node_2 = {x0 + width}, {y0};"
                         f"node_3 = {x0},{y0 + height};"
-                        f"node_4 = {x0 + width},{y0 + height}\n")
+                        f"node_4 = {x0 + width},{y0 + height};"
+                        f"Type = {type_id}\n")
 
     def subdivide(self):
         recursive_subdivide(self.root, self.threshold, self.img)
@@ -58,5 +59,5 @@ k = int(input("Podaj dokladnosc siatki - mniejsza liczba dokladniesza siatka\n")
 
 tree = QTree(k, img.size[0], img.size[1], data)
 tree.subdivide()
-# tree.save_elements()
+tree.save_elements()
 tree.graph()
